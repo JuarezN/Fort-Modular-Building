@@ -5,10 +5,22 @@ using UnityEngine;
 public class WorldGrid : MonoBehaviour
 {
     public static float CellSize = 3;
-    public static Hashtable Cells = new Hashtable();
+    public static Hashtable MidCells = new Hashtable();
+    public static Hashtable FrontWallCells = new Hashtable();
+    public static Hashtable SideWallCells = new Hashtable();
+    public static Hashtable GroundCells = new Hashtable();
 
-    public static  GridCell GetWoldCell(Vector3 position) {
-        GridCell gc = FindExistingCells(ConvertToGridPosition(position));
+    public static List<Hashtable> CellsHash = new List<Hashtable>();
+
+    public static void Init() {
+        CellsHash.Add(MidCells);
+        CellsHash.Add(FrontWallCells);
+        CellsHash.Add(SideWallCells);
+        CellsHash.Add(GroundCells);
+    }
+
+    public static  GridCell GetWoldCell(Hashtable cellGroup, Vector3 position) {
+        GridCell gc = FindExistingCells(cellGroup, ConvertToGridPosition(position));
         if (gc != null) {
             return gc;
         }
@@ -17,8 +29,51 @@ public class WorldGrid : MonoBehaviour
         go.AddComponent<GridCell>();
         gc = go.GetComponent<GridCell>();
         gc.transform.position = ConvertToGridPosition(position);
-        Cells.Add(gc.transform.position ,gc);
+        FindCellConnection(gc, gc.transform.position);
+        cellGroup.Add(gc.transform.position ,gc);
         return gc;
+    }
+
+    private static void FindCellConnection(GridCell newGrid, Vector3 position) {
+        List<GridCell> gridCells = new List<GridCell>();
+        foreach (Hashtable hashlist in CellsHash) {
+            Debug.Log(new Vector3(position.x, position.y, position.z + CellSize) +"" + hashlist.Contains(new Vector3(position.x, position.y, position.z + CellSize)));
+            if (hashlist.Contains(new Vector3(position.x, position.y, position.z + CellSize))) {
+                gridCells.Add((GridCell)hashlist[new Vector3(position.x, position.y, position.z + CellSize)]);
+            }
+            if (hashlist.Contains(new Vector3(position.x, position.y, position.z - CellSize))) {
+                gridCells.Add((GridCell)hashlist[new Vector3(position.x, position.y, position.z - CellSize)]);
+            }
+            if (hashlist.Contains(new Vector3(position.x, position.y + CellSize, position.z))) {
+                gridCells.Add((GridCell)hashlist[new Vector3(position.x, position.y + CellSize, position.z)]);
+            }
+            if (hashlist.Contains(new Vector3(position.x, position.y - CellSize, position.z))) {
+                gridCells.Add((GridCell)hashlist[new Vector3(position.x, position.y - CellSize, position.z)]);
+            }
+            if (hashlist.Contains(new Vector3(position.x + CellSize, position.y, position.z))) {
+                gridCells.Add((GridCell)hashlist[new Vector3(position.x +CellSize, position.y, position.z)]);
+            }
+            if (hashlist.Contains(new Vector3(position.x - CellSize, position.y, position.z))) {
+                gridCells.Add((GridCell)hashlist[new Vector3(position.x - CellSize, position.y, position.z)]);
+            }
+            if (hashlist.Contains(new Vector3(position.x, position.y + CellSize, position.z + CellSize))) {
+                gridCells.Add((GridCell)hashlist[new Vector3(position.x, position.y + CellSize, position.z + CellSize)]);
+            }
+            if (hashlist.Contains(new Vector3(position.x, position.y - CellSize, position.z + CellSize))) {
+                gridCells.Add((GridCell)hashlist[new Vector3(position.x, position.y - CellSize, position.z + CellSize)]);
+            }
+            if (hashlist.Contains(new Vector3(position.x, position.y + CellSize, position.z - CellSize))) {
+                gridCells.Add((GridCell)hashlist[new Vector3(position.x, position.y + CellSize, position.z - CellSize)]);
+            }
+            if (hashlist.Contains(new Vector3(position.x, position.y - CellSize, position.z - CellSize))) {
+                gridCells.Add((GridCell)hashlist[new Vector3(position.x, position.y - CellSize, position.z - CellSize)]);
+            }
+        }
+            Debug.Log(gridCells.Count);
+        foreach (GridCell gc in gridCells) {
+            gc.SupportedCells.Add(newGrid);
+        }
+        newGrid.SupportCells = gridCells;
     }
 
     private static Vector3 ConvertToGridPosition(Vector3 position) {
@@ -30,9 +85,9 @@ public class WorldGrid : MonoBehaviour
         return temp;
     }
 
-    private static GridCell FindExistingCells(Vector3 position) {
-        if (Cells.Contains(position)) {
-            return (GridCell)Cells[position];
+    private static GridCell FindExistingCells(Hashtable cellGroup ,Vector3 position) {
+        if (cellGroup.Contains(position)) {
+            return (GridCell)cellGroup[position];
         }
         return null;
     }

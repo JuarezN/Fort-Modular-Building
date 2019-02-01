@@ -4,13 +4,28 @@ using UnityEngine;
 
 public class GridCell : MonoBehaviour
 {
-    public Vector3 CellPosition;
+    public CellPart CellContent;
+    public List<GridCell> SupportedCells = new List<GridCell>();
+    public List<GridCell> SupportCells = new List<GridCell>();
 
-    public CellPart FrontPart;
-    public CellPart BackPart;
-    public CellPart LeftPart;
-    public CellPart RightPart;
-    public CellPart TopPart;
-    public CellPart BottonPart;
-    public CellPart MidPart;
+    public void RemoveSupportCell(GridCell cellToRemove) {
+        SupportCells.Remove(cellToRemove);
+        if (SupportCells.Count == 0 && transform.position.y != 0) {
+            OnDestroyCell();
+        }
+    }
+
+    public void OnDestroyCell() {
+        foreach (GridCell cell in SupportedCells) {
+            cell.RemoveSupportCell(this);
+            Debug.Log("Remover de"+ cell.name);
+        }
+        WorldGrid.MidCells.Remove(transform.position);
+        foreach (DictionaryEntry h in WorldGrid.MidCells) {
+            Debug.Log(h.Key);
+            Debug.Log(WorldGrid.MidCells.Count);
+        }
+        gameObject.SetActive(false);
+    }
+
 }

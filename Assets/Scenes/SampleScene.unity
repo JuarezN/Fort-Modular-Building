@@ -269,6 +269,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PartToBuild: {fileID: 912113315416906918, guid: d0c8125f4b92c7944973081336f1fadf,
     type: 3}
+  PartToBuild_Ground: {fileID: 7632118089965814474, guid: 94cb8e4ead5c5914f9e5548441e43c9e,
+    type: 3}
   Player: {fileID: 608158385}
 --- !u!4 &521834935
 Transform:
