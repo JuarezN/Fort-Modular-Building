@@ -5,7 +5,7 @@ using UnityEngine;
 public class WorldGrid : MonoBehaviour
 {
     public static float CellSize = 3;
-    public static List<GridCell> Cells = new List<GridCell>();
+    public static Hashtable Cells = new Hashtable();
 
     public static  GridCell GetWoldCell(Vector3 position) {
         GridCell gc = FindExistingCells(ConvertToGridPosition(position));
@@ -17,7 +17,7 @@ public class WorldGrid : MonoBehaviour
         go.AddComponent<GridCell>();
         gc = go.GetComponent<GridCell>();
         gc.transform.position = ConvertToGridPosition(position);
-        Cells.Add(gc);
+        Cells.Add(gc.transform.position ,gc);
         return gc;
     }
 
@@ -31,10 +31,8 @@ public class WorldGrid : MonoBehaviour
     }
 
     private static GridCell FindExistingCells(Vector3 position) {
-        foreach (GridCell gc in Cells) {
-            if (Vector3.Distance( gc.transform.position, position) < CellSize) {
-                return gc;
-            }
+        if (Cells.Contains(position)) {
+            return (GridCell)Cells[position];
         }
         return null;
     }
